@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ book.title }}</title></head>
+<body>
+  <a href="/">&larr; Back to listing</a>
+  <h1>{{ book.title }}</h1>
+  <p><strong>Author:</strong> {{ book.author }}</p>
+  <p><strong>Genre:</strong> {{ book.genre }}</p>
+  <p><strong>Price:</strong> ${{ book.price }}</p>
+  <p><strong>Rating:</strong> {{ book.rating }}/5</p>
+  <p>{{ book.description }}</p>
+
+  <button id="borrow-btn">Request to Borrow</button>
+  <div id="borrow-form" style="display:none;">
+    <input type="text" placeholder="Your name" id="borrower-name">
+    <button id="confirm-borrow">Confirm</button>
+  </div>
+  <p id="confirmation"></p>
+
+  <script>
+    document.getElementById("borrow-btn").onclick = function() {
+      document.getElementById("borrow-form").style.display = "block";
+    };
+    document.getElementById("confirm-borrow").onclick = function() {
+      const name = document.getElementById("borrower-name").value || "Anonymous";
+      document.getElementById("confirmation").innerText = "Thanks " + name + ", your request has been received.";
+    };
+  </script>
+</body>
+</html>
