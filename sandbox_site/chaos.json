@@ -7,8 +7,8 @@
       "probability": 1.0
     },
     "cookie_banner": {
-      "enabled": true,
-      "probability": 1.0
+  "enabled": true,
+  "probability": 1.0
     },
     "captcha_gate": {
       "enabled": false,

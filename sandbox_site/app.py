@@ -49,15 +49,17 @@ def listing():
     books_page = books[start:end]
 
     show_popup = scenario_active("popup")
+    show_cookie_banner = scenario_active("cookie_banner")
 
     return render_template(
-        "listing.html",
-        books=books_page,
-        query=query,
-        page=page,
-        total_pages=total_pages,
-        show_popup=show_popup
-    )
+    "listing.html",
+    books=books_page,
+    query=query,
+    page=page,
+    total_pages=total_pages,
+    show_popup=show_popup,
+    show_cookie_banner=show_cookie_banner
+)
 
 @app.route("/book/<int:book_id>")
 def detail(book_id):
