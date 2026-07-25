@@ -2,6 +2,14 @@
 <html>
 <head><title>BookNook</title></head>
 <body>
+    {% if show_popup %}
+<div id="newsletter-popup" style="position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:2px solid black; padding:20px; z-index:1000;">
+  <p>Subscribe to BookNook Weekly for new releases!</p>
+  <input type="email" placeholder="Your email">
+  <button onclick="document.getElementById('newsletter-popup').style.display='none'">Subscribe</button>
+  <button id="close-popup" onclick="document.getElementById('newsletter-popup').style.display='none'">Close</button>
+</div>
+{% endif %}
   <h1>BookNook — All Books</h1>
 
   <form method="get" action="/">

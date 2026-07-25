@@ -1,7 +1,23 @@
 from flask import Flask, render_template, request
 import json
 import os
+CHAOS_PATH = os.path.join(os.path.dirname(__file__), "chaos.json")
 
+def load_chaos_config():
+    with open(CHAOS_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def scenario_active(scenario_name):
+    config = load_chaos_config()
+    scenario = config["scenarios"].get(scenario_name, {})
+    if not scenario.get("enabled", False):
+        return False
+    if config["mode"] == "manual":
+        return True
+    # random mode: roll against probability
+    import random
+    random.seed(config.get("seed"))
+    return random.random() < scenario.get("probability", 0)
 app = Flask(__name__)
 
 # Load book data once at startup
@@ -12,10 +28,10 @@ def load_books():
         return json.load(f)
 
 @app.route("/")
+@app.route("/")
 def listing():
     books = load_books()
 
-    # Basic search/filter by title, author, or genre
     query = request.args.get("q", "").strip().lower()
     if query:
         books = [
@@ -25,7 +41,6 @@ def listing():
             or query in b["genre"].lower()
         ]
 
-    # Simple "load more" pagination
     page_size = 10
     page = int(request.args.get("page", 1))
     total_pages = max(1, (len(books) + page_size - 1) // page_size)
@@ -33,12 +48,15 @@ def listing():
     end = start + page_size
     books_page = books[start:end]
 
+    show_popup = scenario_active("popup")
+
     return render_template(
         "listing.html",
         books=books_page,
         query=query,
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        show_popup=show_popup
     )
 
 @app.route("/book/<int:book_id>")
