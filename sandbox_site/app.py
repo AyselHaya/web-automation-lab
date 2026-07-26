@@ -1,11 +1,25 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import json
 import os
+import random as rnd
+
+_chaos_rng = rnd.Random()  # separate generator just for chaos probability rolls
+app = Flask(__name__)
+
 CHAOS_PATH = os.path.join(os.path.dirname(__file__), "chaos.json")
+DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "items.json")
+
+RIDDLES = [
+    {"question": "I have pages but I'm not a website. What am I?", "answer": "book"},
+    {"question": "What do you call a person who loves reading?", "answer": "reader"},
+    {"question": "What's 7 + 5?", "answer": "12"},
+]
+
 
 def load_chaos_config():
     with open(CHAOS_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
+
 
 def scenario_active(scenario_name):
     config = load_chaos_config()
@@ -14,20 +28,14 @@ def scenario_active(scenario_name):
         return False
     if config["mode"] == "manual":
         return True
-    # random mode: roll against probability
-    import random
-    random.seed(config.get("seed"))
-    return random.random() < scenario.get("probability", 0)
-app = Flask(__name__)
-
-# Load book data once at startup
-DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "items.json")
-
+    _chaos_rng.seed(config.get("seed"))
+    return _chaos_rng.random() < scenario.get("probability", 0)
+    
 def load_books():
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
-@app.route("/")
+
 @app.route("/")
 def listing():
     books = load_books()
@@ -50,20 +58,19 @@ def listing():
 
     show_popup = scenario_active("popup")
     show_cookie_banner = scenario_active("cookie_banner")
-    import random as rnd
-    show_popup = scenario_active("popup")
     popup_book_title = rnd.choice(books)["title"] if books else "a hidden gem"
 
     return render_template(
-    "listing.html",
-    books=books_page,
-    query=query,
-    page=page,
-    total_pages=total_pages,
-    show_popup=show_popup,
-    show_cookie_banner=show_cookie_banner,
-    popup_book_title=popup_book_title
-)
+        "listing.html",
+        books=books_page,
+        query=query,
+        page=page,
+        total_pages=total_pages,
+        show_popup=show_popup,
+        show_cookie_banner=show_cookie_banner,
+        popup_book_title=popup_book_title
+    )
+
 
 @app.route("/book/<int:book_id>")
 def detail(book_id):
@@ -71,7 +78,37 @@ def detail(book_id):
     book = next((b for b in books if b["id"] == book_id), None)
     if book is None:
         return "Book not found", 404
+
+    if scenario_active("captcha_gate") and not request.args.get("verified"):
+        riddle = rnd.choice(RIDDLES)
+        return render_template(
+            "captcha.html",
+            riddle=riddle["question"],
+            correct_answer=riddle["answer"],
+            book_id=book_id
+        )
+
     return render_template("detail.html", book=book)
+
+
+@app.route("/verify-reader", methods=["POST"])
+def verify_reader():
+    book_id = int(request.form.get("book_id"))
+    answer = request.form.get("answer", "").strip().lower()
+    correct_answer = request.form.get("correct_answer", "").strip().lower()
+
+    if answer == correct_answer:
+        return redirect(f"/book/{book_id}?verified=true")
+    else:
+        riddle = rnd.choice(RIDDLES)
+        return render_template(
+            "captcha.html",
+            riddle=riddle["question"],
+            correct_answer=riddle["answer"],
+            book_id=book_id,
+            error="Not quite — try again."
+        )
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

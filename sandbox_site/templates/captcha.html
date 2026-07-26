@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Quick Check</title></head>
+<body>
+  <h1>Just checking you're not a robot 📚</h1>
+  <p>{{ riddle }}</p>
+  <form method="post" action="/verify-reader">
+    <input type="hidden" name="book_id" value="{{ book_id }}">
+    <input type="hidden" name="correct_answer" value="{{ correct_answer }}">
+    <input type="text" name="answer" placeholder="Your answer">
+    <button type="submit">Continue</button>
+  </form>
+  {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+</body>
+</html>
