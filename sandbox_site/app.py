@@ -50,6 +50,9 @@ def listing():
 
     show_popup = scenario_active("popup")
     show_cookie_banner = scenario_active("cookie_banner")
+    import random as rnd
+    show_popup = scenario_active("popup")
+    popup_book_title = rnd.choice(books)["title"] if books else "a hidden gem"
 
     return render_template(
     "listing.html",
@@ -58,7 +61,8 @@ def listing():
     page=page,
     total_pages=total_pages,
     show_popup=show_popup,
-    show_cookie_banner=show_cookie_banner
+    show_cookie_banner=show_cookie_banner,
+    popup_book_title=popup_book_title
 )
 
 @app.route("/book/<int:book_id>")
