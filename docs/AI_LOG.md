@@ -25,3 +25,8 @@
 **Tool & approach:** Used Claude to draft in-universe copy and dynamic book title logic (random.choice from loaded data).
 **What it got right / wrong:** Worked correctly first try; made the popup feel like part of the actual site instead of a generic template.
 **What I learned:** Small thematic touches like this cost almost no extra time but make the demo feel like a real product, not just a checklist of required features.
+## Entry 6 — Captcha gate scenario
+**What I was doing:** Building the simulated captcha scenario as a knowledge-neutral riddle gate.
+**Tool & approach:** Initially built it as "guess the book title from its description," but caught that this was illogical for a first-time visitor who wouldn't know the book yet — redesigned it as a generic riddle instead.
+**What it got right / wrong:** First version had a real logic flaw (asking users to already know what they were trying to discover). Also hit a subtle bug where seeding the shared random generator for chaos probability checks accidentally locked in the next random pick too, making the riddle repeat — fixed by giving chaos rolls their own isolated random instance.
+**What I learned:** Good design critique doesn't just come from AI — catching that the captcha logic didn't make sense from a user's perspective was something I noticed myself, not something Claude flagged. Also learned that sharing one random generator across unrelated features can cause invisible bugs.
