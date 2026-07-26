@@ -20,3 +20,8 @@
 **Tool & approach:** Reused the established pattern (chaos.json flag → app.py check → template conditional) with Claude's guidance, implemented and tested independently.
 **What it got right / wrong:** Went smoothly since the pattern was already established from scenario 1 — no errors this time.
 **What I learned:** Having a consistent pattern for wiring in scenarios makes each new one faster to build and test than the last.
+## Entry 5 — Theming popup and cookie banner
+**What I was doing:** Reworking the popup and cookie banner scenarios to fit the BookNook theme instead of generic copy.
+**Tool & approach:** Used Claude to draft in-universe copy and dynamic book title logic (random.choice from loaded data).
+**What it got right / wrong:** Worked correctly first try; made the popup feel like part of the actual site instead of a generic template.
+**What I learned:** Small thematic touches like this cost almost no extra time but make the demo feel like a real product, not just a checklist of required features.
