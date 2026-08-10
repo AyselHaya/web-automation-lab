@@ -3,7 +3,6 @@ import json
 import os
 import random as rnd
 
-_chaos_rng = rnd.Random()  # separate generator just for chaos probability rolls
 app = Flask(__name__)
 
 CHAOS_PATH = os.path.join(os.path.dirname(__file__), "chaos.json")
@@ -26,11 +25,14 @@ def scenario_active(scenario_name):
     scenario = config["scenarios"].get(scenario_name, {})
     if not scenario.get("enabled", False):
         return False
-    if config["mode"] == "manual":
-        return True
-    _chaos_rng.seed(config.get("seed"))
-    return _chaos_rng.random() < scenario.get("probability", 0)
-    
+    return rnd.random() < scenario.get("probability", 1.0)
+
+
+def maybe_fail():
+    """Randomly returns True if the server_error scenario should trigger."""
+    return scenario_active("server_error")
+
+
 def load_books():
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -38,6 +40,9 @@ def load_books():
 
 @app.route("/")
 def listing():
+    if maybe_fail():
+        return "Internal Server Error (simulated)", 503
+
     books = load_books()
 
     query = request.args.get("q", "").strip().lower()
@@ -74,6 +79,9 @@ def listing():
 
 @app.route("/book/<int:book_id>")
 def detail(book_id):
+    if maybe_fail():
+        return "Internal Server Error (simulated)", 503
+
     books = load_books()
     book = next((b for b in books if b["id"] == book_id), None)
     if book is None:
