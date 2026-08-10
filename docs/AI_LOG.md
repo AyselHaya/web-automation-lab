@@ -40,3 +40,8 @@
 **Tool & approach:** Reused the probability-based pattern from server_error, added a time.sleep() call with a randomized duration range from chaos.json.
 **What it got right / wrong:** Worked cleanly first try since the pattern was already established. Noticed that multiple independent scenarios (delay + error) can both roll on the same request mix, which is actually realistic — real flaky servers show a mix of symptoms, not one at a time.
 **What I learned:** Building scenarios as independent, composable checks (rather than one big if/elif chain) means they naturally combine in realistic ways without extra work.
+## Entry 9 — Redirection scenario
+**What I was doing:** Adding the unexpected redirection scenario — book clicks sometimes land on a promo page instead.
+**Tool & approach:** Reused the established probability-check pattern, added a skip_redirect query param so the "take me back" link doesn't loop into the same promo page again.
+**What it got right / wrong:** Worked cleanly first try; the skip_redirect param was an important detail to avoid an infinite redirect loop on the way back.
+**What I learned:** Building the escape hatch (skip_redirect) into a chaos scenario is just as important as building the chaos itself — otherwise the sandbox becomes unusable for anyone trying to actually get past it.
