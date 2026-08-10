@@ -45,3 +45,8 @@
 **Tool & approach:** Reused the established probability-check pattern, added a skip_redirect query param so the "take me back" link doesn't loop into the same promo page again.
 **What it got right / wrong:** Worked cleanly first try; the skip_redirect param was an important detail to avoid an infinite redirect loop on the way back.
 **What I learned:** Building the escape hatch (skip_redirect) into a chaos scenario is just as important as building the chaos itself — otherwise the sandbox becomes unusable for anyone trying to actually get past it.
+## Entry 10 — DOM drift scenario
+**What I was doing:** Building the DOM change/selector drift scenario — an alternate page layout for the same content.
+**Tool & approach:** Created a second template with completely different tags, classes, and structure, then randomly picked between the two templates in the route based on probability.
+**What it got right / wrong:** Worked cleanly first try; the key was making sure both templates receive the exact same data so only the structure differs, not the content.
+**What I learned:** This scenario is a good preview of why the bot needs resilient selectors — a bot hardcoded to look for `<ul><li>` would completely break on the alt layout, even though the actual book data is identical.
