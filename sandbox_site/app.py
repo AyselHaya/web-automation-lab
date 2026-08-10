@@ -99,6 +99,12 @@ def detail(book_id):
     if maybe_fail():
         return "Internal Server Error (simulated)", 503
 
+    if scenario_active("redirect") and not request.args.get("skip_redirect"):
+        return render_template(
+            "promo.html",
+            original_url=f"/book/{book_id}?skip_redirect=true"
+        )
+
     books = load_books()
     book = next((b for b in books if b["id"] == book_id), None)
     if book is None:
