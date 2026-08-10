@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><title>BookNook</title></head>
+<body>
+  {% if show_popup %}
+  <aside class="reminder-box" style="position:fixed; bottom:20px; right:20px; background:#fdf6e3; border:1px solid #ccc; padding:12px 16px; max-width:260px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:1000; font-size:14px;">
+    <p style="margin:0 0 8px 0;">⏰ Reminder: "{{ popup_book_title }}" is due back in 2 days.</p>
+    <button class="dismiss-reminder" onclick="this.parentElement.style.display='none'">Dismiss</button>
+  </aside>
+  {% endif %}
+
+  {% if show_cookie_banner %}
+  <footer class="site-notice" style="position:fixed; bottom:0; left:0; width:100%; background:#333; color:white; padding:15px; text-align:center; z-index:999;">
+    <span>📚 BookNook remembers your reading history to recommend better books. Accept our bookmark policy?</span>
+    <button class="notice-accept" onclick="this.parentElement.style.display='none'">Accept</button>
+  </footer>
+  {% endif %}
+
+  <header><h2>Welcome to BookNook</h2></header>
+
+  <section class="search-area">
+    <form method="get" action="/">
+      <input type="text" name="q" placeholder="Search title, author, or genre" value="{{ query }}">
+      <input type="submit" value="Find Books">
+    </form>
+  </section>
+
+  <div class="book-grid">
+    {% for book in books %}
+      <div class="book-card">
+        <a class="book-link" href="/book/{{ book.id }}">{{ book.title }}</a>
+        <span> — {{ book.author }} — {{ book.genre }} — ${{ book.price }} — {{ book.rating }}/5</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if not books %}
+    <p>No books found.</p>
+  {% endif %}
+
+  <nav class="pager">
+    {% if page > 1 %}
+      <a href="/?q={{ query }}&page={{ page - 1 }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page }} of {{ total_pages }}</span>
+    {% if page < total_pages %}
+      <a class="load-more-link" href="/?q={{ query }}&page={{ page + 1 }}">Load more</a>
+    {% endif %}
+  </nav>
+</body>
+</html>

@@ -81,8 +81,10 @@ def listing():
     show_cookie_banner = scenario_active("cookie_banner")
     popup_book_title = rnd.choice(books)["title"] if books else "a hidden gem"
 
+    template_name = "listing_alt.html" if scenario_active("dom_drift") else "listing.html"
+
     return render_template(
-        "listing.html",
+        template_name,
         books=books_page,
         query=query,
         page=page,
