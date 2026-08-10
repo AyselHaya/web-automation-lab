@@ -121,7 +121,9 @@ def detail(book_id):
             book_id=book_id
         )
 
-    return render_template("detail.html", book=book)
+    show_overlay = scenario_active("blocked_click")
+
+    return render_template("detail.html", book=book, show_overlay=show_overlay)
 
 
 @app.route("/verify-reader", methods=["POST"])

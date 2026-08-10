@@ -10,7 +10,15 @@
   <p><strong>Rating:</strong> {{ book.rating }}/5</p>
   <p>{{ book.description }}</p>
 
-  <button id="borrow-btn">Request to Borrow</button>
+  <div style="position:relative;">
+    <button id="borrow-btn">Request to Borrow</button>
+    {% if show_overlay %}
+    <div id="sticky-overlay" style="position:absolute; top:-10px; left:-10px; width:220px; height:60px; background:rgba(255,215,0,0.85); z-index:500; display:flex; align-items:center; justify-content:center; font-size:12px; text-align:center;">
+      🔥 Flash Sale! <button id="dismiss-overlay" onclick="document.getElementById('sticky-overlay').style.display='none'" style="margin-left:5px;">X</button>
+    </div>
+    {% endif %}
+  </div>
+
   <div id="borrow-form" style="display:none;">
     <input type="text" placeholder="Your name" id="borrower-name">
     <button id="confirm-borrow">Confirm</button>
