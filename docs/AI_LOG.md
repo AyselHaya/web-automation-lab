@@ -35,3 +35,8 @@
 **Tool & approach:** Realized manual mode's original always-on behavior didn't make sense for a scenario meant to happen "sometimes" — updated scenario_active() to respect probability in all modes, not just random mode.
 **What it got right / wrong:** Initial chaos engine design assumed manual mode = always-on, which worked fine for popup/banner but broke down for a scenario that needs to be intermittent even during manual testing.
 **What I learned:** Some scenarios are naturally binary (a banner is either showing or not) while others are inherently probabilistic (a server doesn't fail 100% of the time) — the chaos engine needed to support both properly, not just one pattern.
+## Entry 8 — Slow response scenario
+**What I was doing:** Adding random delay injection for the slow response/timeout scenario.
+**Tool & approach:** Reused the probability-based pattern from server_error, added a time.sleep() call with a randomized duration range from chaos.json.
+**What it got right / wrong:** Worked cleanly first try since the pattern was already established. Noticed that multiple independent scenarios (delay + error) can both roll on the same request mix, which is actually realistic — real flaky servers show a mix of symptoms, not one at a time.
+**What I learned:** Building scenarios as independent, composable checks (rather than one big if/elif chain) means they naturally combine in realistic ways without extra work.
