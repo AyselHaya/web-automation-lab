@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import json
 import os
+import time
 import random as rnd
 
 app = Flask(__name__)
@@ -33,6 +34,20 @@ def maybe_fail():
     return scenario_active("server_error")
 
 
+def maybe_delay():
+    """Randomly sleeps for a random duration if the slow_response scenario triggers."""
+    config = load_chaos_config()
+    scenario = config["scenarios"].get("slow_response", {})
+    if not scenario.get("enabled", False):
+        return
+    if rnd.random() < scenario.get("probability", 0):
+        delay = rnd.uniform(
+            scenario.get("min_delay_seconds", 2),
+            scenario.get("max_delay_seconds", 5)
+        )
+        time.sleep(delay)
+
+
 def load_books():
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -40,6 +55,7 @@ def load_books():
 
 @app.route("/")
 def listing():
+    maybe_delay()
     if maybe_fail():
         return "Internal Server Error (simulated)", 503
 
@@ -79,6 +95,7 @@ def listing():
 
 @app.route("/book/<int:book_id>")
 def detail(book_id):
+    maybe_delay()
     if maybe_fail():
         return "Internal Server Error (simulated)", 503
 

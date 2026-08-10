@@ -6,7 +6,7 @@
     "cookie_banner": { "enabled": true, "probability": 1.0 },
     "captcha_gate": { "enabled": true, "probability": 1.0 },
     "server_error": { "enabled": true, "probability": 0.3 },
-    "slow_response": { "enabled": false, "probability": 0.3, "min_delay_seconds": 2, "max_delay_seconds": 5 },
+    "slow_response": { "enabled": true, "probability": 0.3, "min_delay_seconds": 2, "max_delay_seconds": 5 },
     "redirect": { "enabled": false, "probability": 0.3 },
     "dom_drift": { "enabled": false, "probability": 0.3 },
     "blocked_click": { "enabled": false, "probability": 0.3 }
