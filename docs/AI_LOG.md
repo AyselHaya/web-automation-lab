@@ -50,3 +50,8 @@
 **Tool & approach:** Created a second template with completely different tags, classes, and structure, then randomly picked between the two templates in the route based on probability.
 **What it got right / wrong:** Worked cleanly first try; the key was making sure both templates receive the exact same data so only the structure differs, not the content.
 **What I learned:** This scenario is a good preview of why the bot needs resilient selectors — a bot hardcoded to look for `<ul><li>` would completely break on the alt layout, even though the actual book data is identical.
+## Entry 11 — Blocked click scenario (all 8 core scenarios complete!)
+**What I was doing:** Building the final core scenario — a sticky overlay intercepting clicks on the borrow button.
+**Tool & approach:** Positioned an absolutely-positioned overlay div directly over the button using relative/absolute CSS, toggled by the same probability pattern as other scenarios.
+**What it got right / wrong:** Worked cleanly first try; the overlay genuinely blocks real clicks on the underlying button until dismissed, which is exactly the real-world pattern this scenario represents.
+**What I learned:** All 8 core scenarios are now done in the sandbox. The consistent pattern (chaos.json flag → scenario_active() check → template conditional) made each successive scenario faster to build than the last — a good argument for establishing a clean pattern early rather than one-off solutions per scenario.
