@@ -30,3 +30,8 @@
 **Tool & approach:** Initially built it as "guess the book title from its description," but caught that this was illogical for a first-time visitor who wouldn't know the book yet — redesigned it as a generic riddle instead.
 **What it got right / wrong:** First version had a real logic flaw (asking users to already know what they were trying to discover). Also hit a subtle bug where seeding the shared random generator for chaos probability checks accidentally locked in the next random pick too, making the riddle repeat — fixed by giving chaos rolls their own isolated random instance.
 **What I learned:** Good design critique doesn't just come from AI — catching that the captcha logic didn't make sense from a user's perspective was something I noticed myself, not something Claude flagged. Also learned that sharing one random generator across unrelated features can cause invisible bugs.
+## Entry 7 — Server error scenario + probability fix
+**What I was doing:** Adding the site-down/server-error scenario, which needed probability-based triggering rather than always-on.
+**Tool & approach:** Realized manual mode's original always-on behavior didn't make sense for a scenario meant to happen "sometimes" — updated scenario_active() to respect probability in all modes, not just random mode.
+**What it got right / wrong:** Initial chaos engine design assumed manual mode = always-on, which worked fine for popup/banner but broke down for a scenario that needs to be intermittent even during manual testing.
+**What I learned:** Some scenarios are naturally binary (a banner is either showing or not) while others are inherently probabilistic (a server doesn't fail 100% of the time) — the chaos engine needed to support both properly, not just one pattern.
