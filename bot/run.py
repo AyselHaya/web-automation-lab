@@ -6,7 +6,8 @@ sys.path.append(os.path.dirname(__file__))
 from playwright.sync_api import sync_playwright
 import selectors as sel
 from reporting import new_run_log, log_event, save_screenshot, finish_run
-from handlers.disruptions import handle_known_disruptions
+from handlers.disruptions import handle_known_disruptions, solve_captcha_if_present
+from handlers.resilience import with_retry
 
 BASE_URL = "http://127.0.0.1:5000"
 SEARCH_TERM = "Fiction"
@@ -21,14 +22,16 @@ def run_bot():
         page = browser.new_page()
 
         try:
-            log_event(run_log, f"Navigating to {BASE_URL}")
-            page.goto(BASE_URL)
+            ok = with_retry(lambda: page.goto(BASE_URL), page, run_log, log_event, "loading listing page")
+            if not ok:
+                raise Exception("Could not load listing page after retries")
             handle_known_disruptions(page, run_log, log_event)
 
             log_event(run_log, f"Searching for '{SEARCH_TERM}'")
             page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
-            page.click(sel.SEARCH_SUBMIT)
-            page.wait_for_load_state("networkidle")
+            ok = with_retry(lambda: page.click(sel.SEARCH_SUBMIT), page, run_log, log_event, "searching")
+            if not ok:
+                raise Exception("Search failed after retries")
             handle_known_disruptions(page, run_log, log_event)
 
             book_links = page.locator(sel.BOOK_LINKS)
@@ -39,9 +42,13 @@ def run_bot():
             for i in range(top_n):
                 title = book_links.nth(i).inner_text()
                 log_event(run_log, f"Opening result {i+1}: {title}")
-                book_links.nth(i).click()
-                page.wait_for_load_state("networkidle")
-                handle_known_disruptions(page, run_log, log_event)
+
+                ok = with_retry(lambda: book_links.nth(i).click(), page, run_log, log_event, f"opening {title}")
+                if not ok:
+                    log_event(run_log, f"Skipping {title} — could not load after retries")
+                    continue
+
+                solve_captcha_if_present(page, run_log, log_event)
 
                 log_event(run_log, "Clicking Request to Borrow")
                 page.click(sel.BORROW_BUTTON)
@@ -60,8 +67,7 @@ def run_bot():
                 page.wait_for_load_state("networkidle")
                 handle_known_disruptions(page, run_log, log_event)
                 page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
-                page.click(sel.SEARCH_SUBMIT)
-                page.wait_for_load_state("networkidle")
+                ok = with_retry(lambda: page.click(sel.SEARCH_SUBMIT), page, run_log, log_event, "re-searching")
                 handle_known_disruptions(page, run_log, log_event)
                 book_links = page.locator(sel.BOOK_LINKS)
 

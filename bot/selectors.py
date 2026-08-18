@@ -11,3 +11,7 @@ POPUP_DISMISS_BUTTON = "#close-popup"
 
 COOKIE_BANNER = "#cookie-banner"
 COOKIE_ACCEPT_BUTTON = "#accept-cookies"
+
+CAPTCHA_HIDDEN_ANSWER = "input[name='correct_answer']"
+CAPTCHA_ANSWER_INPUT = "input[name='answer']"
+CAPTCHA_SUBMIT_BUTTON = "form[action='/verify-reader'] button[type='submit']"
