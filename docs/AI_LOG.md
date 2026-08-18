@@ -55,3 +55,8 @@
 **Tool & approach:** Positioned an absolutely-positioned overlay div directly over the button using relative/absolute CSS, toggled by the same probability pattern as other scenarios.
 **What it got right / wrong:** Worked cleanly first try; the overlay genuinely blocks real clicks on the underlying button until dismissed, which is exactly the real-world pattern this scenario represents.
 **What I learned:** All 8 core scenarios are now done in the sandbox. The consistent pattern (chaos.json flag → scenario_active() check → template conditional) made each successive scenario faster to build than the last — a good argument for establishing a clean pattern early rather than one-off solutions per scenario.
+## Entry 12 — Happy-path bot working end-to-end
+**What I was doing:** Building the core Playwright bot: search for books, open top 3 results, complete the borrow flow, log everything, produce a run summary.
+**Tool & approach:** Used Claude to scaffold selectors.py, reporting.py, and run.py, hit some file-creation hiccups (files not saving properly) but resolved by creating them via terminal first, then pasting content.
+**What it got right / wrong:** Worked correctly on the very first real run — no errors, all 3 items processed, screenshots and run log saved automatically.
+**What I learned:** Having reporting.py as a separate, reusable module (rather than inline logging) means every future scenario handler can just call log_event() and save_screenshot() without rewriting logging logic each time.
