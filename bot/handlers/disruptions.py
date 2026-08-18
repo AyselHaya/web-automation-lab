@@ -32,20 +32,15 @@ def handle_known_disruptions(page, run_log, log_event):
 
 
 def solve_captcha_if_present(page, run_log, log_event, max_attempts=3):
-    """Detects the riddle captcha gate and solves it using the hidden answer field."""
-    attempt = 0
-    while attempt < max_attempts:
-        hidden_answer = page.locator(sel.CAPTCHA_HIDDEN_ANSWER)
-        if hidden_answer.count() == 0:
-            return  # not on a captcha page, nothing to do
-        log_event(run_log, "Detected captcha gate — solving")
-        run_log["disruptions_encountered"] += 1
-        answer_value = hidden_answer.get_attribute("value")
-        page.fill(sel.CAPTCHA_ANSWER_INPUT, answer_value)
-        page.click(sel.CAPTCHA_SUBMIT_BUTTON)
-        page.wait_for_load_state("networkidle")
-        attempt += 1
-        if page.locator(sel.CAPTCHA_HIDDEN_ANSWER).count() == 0:
-            log_event(run_log, "Captcha solved, proceeding")
-            return
-    log_event(run_log, "Could not solve captcha after max attempts")
+    """Detects the riddle captcha gate and solves it. Returns True if a captcha was found and solved."""
+    hidden_answer = page.locator(sel.CAPTCHA_HIDDEN_ANSWER)
+    if hidden_answer.count() == 0:
+        return False
+    log_event(run_log, "Detected captcha gate — solving")
+    run_log["disruptions_encountered"] += 1
+    answer_value = hidden_answer.get_attribute("value")
+    page.fill(sel.CAPTCHA_ANSWER_INPUT, answer_value)
+    page.click(sel.CAPTCHA_SUBMIT_BUTTON)
+    page.wait_for_load_state("networkidle")
+    log_event(run_log, "Captcha solved, proceeding")
+    return True

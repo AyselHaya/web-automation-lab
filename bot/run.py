@@ -8,6 +8,7 @@ import selectors as sel
 from reporting import new_run_log, log_event, save_screenshot, finish_run
 from handlers.disruptions import handle_known_disruptions, solve_captcha_if_present
 from handlers.resilience import with_retry
+from handlers.navigation import ensure_reached_detail_page
 
 BASE_URL = "http://127.0.0.1:5000"
 SEARCH_TERM = "Fiction"
@@ -48,7 +49,10 @@ def run_bot():
                     log_event(run_log, f"Skipping {title} — could not load after retries")
                     continue
 
-                solve_captcha_if_present(page, run_log, log_event)
+                reached = ensure_reached_detail_page(page, run_log, log_event, solve_captcha_if_present)
+                if not reached:
+                    log_event(run_log, f"Could not reach detail page for {title} — skipping")
+                    continue
 
                 log_event(run_log, "Clicking Request to Borrow")
                 page.click(sel.BORROW_BUTTON)
@@ -61,10 +65,13 @@ def run_bot():
 
                 save_screenshot(page, run_log, f"item_{i+1}_done")
 
-                page.go_back()
-                page.wait_for_load_state("networkidle")
-                page.go_back()
-                page.wait_for_load_state("networkidle")
+                # Navigate straight back to the listing + search, rather than
+                # relying on browser history (which now includes extra
+                # captcha/promo detour pages of unpredictable length).
+                ok = with_retry(lambda: page.goto(BASE_URL), page, run_log, log_event, "returning to listing")
+                if not ok:
+                    log_event(run_log, "Could not return to listing — stopping loop")
+                    break
                 handle_known_disruptions(page, run_log, log_event)
                 page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
                 ok = with_retry(lambda: page.click(sel.SEARCH_SUBMIT), page, run_log, log_event, "re-searching")
