@@ -60,3 +60,8 @@
 **Tool & approach:** Used Claude to scaffold selectors.py, reporting.py, and run.py, hit some file-creation hiccups (files not saving properly) but resolved by creating them via terminal first, then pasting content.
 **What it got right / wrong:** Worked correctly on the very first real run — no errors, all 3 items processed, screenshots and run log saved automatically.
 **What I learned:** Having reporting.py as a separate, reusable module (rather than inline logging) means every future scenario handler can just call log_event() and save_screenshot() without rewriting logging logic each time.
+## Entry 13 — Bot handles popup and cookie banner
+**What I was doing:** Building the first two disruption handlers (popup, cookie banner) into the bot.
+**Tool & approach:** Used Claude to scaffold the handler pattern (check visibility, click dismiss, wait for hidden).
+**What it got right / wrong:** First attempt had the popup and cookie banner overlapping on screen, so the bot tried clicking the cookie banner's Accept button while the popup was still covering it, causing a 30-second timeout. Fixed by reordering: dismiss popup first, then cookie banner.
+**What I learned:** Real disruption handling isn't just "does the code exist" — the order handlers run in matters when disruptions can visually overlap, exactly like the brief describes for real-world automation.
