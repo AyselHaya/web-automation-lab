@@ -4,9 +4,13 @@ import os
 sys.path.append(os.path.dirname(__file__))
 
 from playwright.sync_api import sync_playwright
-import selectors as sel
+import bot_selectors as sel
 from reporting import new_run_log, log_event, save_screenshot, finish_run
-from handlers.disruptions import handle_known_disruptions, solve_captcha_if_present
+from handlers.disruptions import (
+    handle_known_disruptions,
+    solve_captcha_if_present,
+    dismiss_overlay_if_present,
+)
 from handlers.resilience import with_retry
 from handlers.navigation import ensure_reached_detail_page
 
@@ -30,7 +34,7 @@ def run_bot():
 
             log_event(run_log, f"Searching for '{SEARCH_TERM}'")
             page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
-            ok = with_retry(lambda: page.click(sel.SEARCH_SUBMIT), page, run_log, log_event, "searching")
+            ok = with_retry(lambda: page.locator(sel.SEARCH_SUBMIT).click(), page, run_log, log_event, "searching")
             if not ok:
                 raise Exception("Search failed after retries")
             handle_known_disruptions(page, run_log, log_event)
@@ -54,6 +58,8 @@ def run_bot():
                     log_event(run_log, f"Could not reach detail page for {title} — skipping")
                     continue
 
+                dismiss_overlay_if_present(page, run_log, log_event)
+
                 log_event(run_log, "Clicking Request to Borrow")
                 page.click(sel.BORROW_BUTTON)
                 page.fill(sel.BORROWER_NAME_INPUT, "BookBot")
@@ -65,16 +71,13 @@ def run_bot():
 
                 save_screenshot(page, run_log, f"item_{i+1}_done")
 
-                # Navigate straight back to the listing + search, rather than
-                # relying on browser history (which now includes extra
-                # captcha/promo detour pages of unpredictable length).
                 ok = with_retry(lambda: page.goto(BASE_URL), page, run_log, log_event, "returning to listing")
                 if not ok:
                     log_event(run_log, "Could not return to listing — stopping loop")
                     break
                 handle_known_disruptions(page, run_log, log_event)
                 page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
-                ok = with_retry(lambda: page.click(sel.SEARCH_SUBMIT), page, run_log, log_event, "re-searching")
+                ok = with_retry(lambda: page.locator(sel.SEARCH_SUBMIT).click(), page, run_log, log_event, "re-searching")
                 handle_known_disruptions(page, run_log, log_event)
                 book_links = page.locator(sel.BOOK_LINKS)
 
