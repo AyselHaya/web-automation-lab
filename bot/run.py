@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(__file__))
 from playwright.sync_api import sync_playwright
 import selectors as sel
 from reporting import new_run_log, log_event, save_screenshot, finish_run
+from handlers.disruptions import handle_known_disruptions
 
 BASE_URL = "http://127.0.0.1:5000"
 SEARCH_TERM = "Fiction"
@@ -22,11 +23,13 @@ def run_bot():
         try:
             log_event(run_log, f"Navigating to {BASE_URL}")
             page.goto(BASE_URL)
+            handle_known_disruptions(page, run_log, log_event)
 
             log_event(run_log, f"Searching for '{SEARCH_TERM}'")
             page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
             page.click(sel.SEARCH_SUBMIT)
             page.wait_for_load_state("networkidle")
+            handle_known_disruptions(page, run_log, log_event)
 
             book_links = page.locator(sel.BOOK_LINKS)
             count = book_links.count()
@@ -38,6 +41,7 @@ def run_bot():
                 log_event(run_log, f"Opening result {i+1}: {title}")
                 book_links.nth(i).click()
                 page.wait_for_load_state("networkidle")
+                handle_known_disruptions(page, run_log, log_event)
 
                 log_event(run_log, "Clicking Request to Borrow")
                 page.click(sel.BORROW_BUTTON)
@@ -54,9 +58,11 @@ def run_bot():
                 page.wait_for_load_state("networkidle")
                 page.go_back()
                 page.wait_for_load_state("networkidle")
+                handle_known_disruptions(page, run_log, log_event)
                 page.fill(sel.SEARCH_INPUT, SEARCH_TERM)
                 page.click(sel.SEARCH_SUBMIT)
                 page.wait_for_load_state("networkidle")
+                handle_known_disruptions(page, run_log, log_event)
                 book_links = page.locator(sel.BOOK_LINKS)
 
         except Exception as e:
